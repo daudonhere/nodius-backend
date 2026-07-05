@@ -35,18 +35,15 @@ app.openAPIRegistry.registerComponent('securitySchemes', 'Bearer', {
   scheme: 'bearer',
 })
 
-// --- Auth middleware helpers ---
 
 const authUser = withSupabase({ auth: 'user' })
 const authSecret = withSupabase({ auth: 'secret' })
 const authUserOrSecret = withSupabase({ auth: ['user', 'secret'] })
 const authUserOrPublishable = withSupabase({ auth: ['user', 'publishable'] })
 
-// --- Health (public) ---
 
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: Date.now() }))
 
-// --- Relay Submit (user) ---
 
 app.use('/relay/submit', authUser)
 
@@ -76,7 +73,6 @@ app.openapi(RelaySubmitRoute, async (c) => {
   return c.json(result, 201)
 })
 
-// --- Relay Status (user or secret) ---
 
 app.use('/relay/status/:id', authUserOrSecret)
 
@@ -98,7 +94,6 @@ app.openapi(RelayStatusRoute, async (c) => {
   return c.json(entry)
 })
 
-// --- Meta Submit (user) ---
 
 app.use('/relay/meta-submit', authUser)
 
@@ -133,7 +128,6 @@ app.openapi(MetaSubmitRoute, async (c) => {
   return c.json(result, 201)
 })
 
-// --- Sponsored Info (user or publishable) ---
 
 app.use('/relay/sponsored-info', authUserOrPublishable)
 
@@ -148,7 +142,6 @@ app.openapi(SponsoredInfoRoute, async (c) => {
   return c.json({ networkMode, ...(await getSponsoredRelayerInfo()) })
 })
 
-// --- Sponsored Solana Swap (user) ---
 
 app.use('/relay/sponsored-solana-swap', authUser)
 
@@ -179,7 +172,6 @@ app.openapi(SolanaSwapRoute, async (c) => {
   }
 })
 
-// --- Sponsored Solana Transfer (user) ---
 
 app.use('/relay/sponsored-solana-transfer', authUser)
 
@@ -211,7 +203,6 @@ app.openapi(SolanaTransferRoute, async (c) => {
   }
 })
 
-// --- Sponsored TON Swap (user) ---
 
 app.use('/relay/sponsored-ton-swap', authUser)
 
@@ -247,7 +238,6 @@ app.openapi(TonSwapRoute, async (c) => {
   }
 })
 
-// --- Relay Info (user or publishable) ---
 
 app.use('/relay/info/:chainId', authUserOrPublishable)
 
@@ -273,7 +263,6 @@ app.openapi(RelayInfoRoute, async (c) => {
   return c.json({ networkMode, chainId, contractAddress, relayerAddress, relayerBalance })
 })
 
-// --- Relay Pending (secret) ---
 
 app.use('/relay/pending', authSecret)
 
@@ -285,7 +274,6 @@ const PendingRoute = createRoute({
 
 app.openapi(PendingRoute, async (c) => c.json(await listPendingRelays()))
 
-// --- Relay Complete (secret) ---
 
 app.use('/relay/complete/:id', authSecret)
 
@@ -303,7 +291,6 @@ app.openapi(CompleteRoute, async (c) => {
   return c.json({ status: 'ok' })
 })
 
-// --- Relay Fail (secret) ---
 
 app.use('/relay/fail/:id', authSecret)
 
@@ -321,7 +308,6 @@ app.openapi(FailRoute, async (c) => {
   return c.json({ status: 'ok' })
 })
 
-// --- Nonce (user) ---
 
 app.use('/nonce/:wallet/:chainId', authUser)
 
@@ -343,7 +329,6 @@ app.openapi(NonceRoute, async (c) => {
   return c.json({ wallet, chainId, nonce } as any)
 })
 
-// --- Gas Pool (user or publishable) ---
 
 app.use('/gas-pool/:chainId', authUserOrPublishable)
 
@@ -365,7 +350,6 @@ app.openapi(GasPoolRoute, async (c) => {
   return c.json({ networkMode, chainId, pools } as any)
 })
 
-// --- OpenAPI Doc + Swagger UI (public) ---
 
 app.doc('/doc', {
   openapi: '3.1.0',
@@ -375,11 +359,9 @@ app.doc('/doc', {
 
 app.get('/ui', swaggerUI({ url: '/doc' }))
 
-// --- Export for Vercel ---
 
 export default app
 
-// --- Start (local only) ---
 
 if (!process.env.VERCEL) {
   const port = Number(process.env.PORT) || 3001
