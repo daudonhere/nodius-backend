@@ -373,10 +373,16 @@ app.doc('/doc', {
 
 app.get('/ui', swaggerUI({ url: '/doc' }))
 
-// --- Start ---
+// --- Export for Vercel ---
 
-const port = Number(process.env.PORT) || 3001
-serve({ fetch: app.fetch, port })
-console.log(`Backend running on http://localhost:${port}`)
-console.log(`Swagger UI: http://localhost:${port}/ui`)
-console.log(`OpenAPI spec: http://localhost:${port}/doc`)
+export default app
+
+// --- Start (local only) ---
+
+if (!process.env.VERCEL) {
+  const port = Number(process.env.PORT) || 3001
+  serve({ fetch: app.fetch, port })
+  console.log(`Backend running on http://localhost:${port}`)
+  console.log(`Swagger UI: http://localhost:${port}/ui`)
+  console.log(`OpenAPI spec: http://localhost:${port}/doc`)
+}
