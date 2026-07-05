@@ -24,7 +24,9 @@ import { parseNetworkMode } from './db/index'
 
 const app = new OpenAPIHono()
 
-startWorker()
+if (!process.env.VERCEL) {
+  startWorker()
+}
 
 app.use('/*', cors())
 
