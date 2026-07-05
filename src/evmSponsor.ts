@@ -9,21 +9,21 @@ import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet, polygon, arbitrum, base, sepolia, baseSepolia } from 'viem/chains'
 
 const CHAINS: Record<number, Chain> = {
-  1: mainnet,
-  137: polygon,
-  42161: arbitrum,
-  8453: base,
-  11155111: sepolia,
-  84532: baseSepolia,
+  [Number(process.env.ETH_CHAIN_ID || 1)]: mainnet,
+  [Number(process.env.POLYGON_CHAIN_ID || 137)]: polygon,
+  [Number(process.env.ARBITRUM_CHAIN_ID || 42161)]: arbitrum,
+  [Number(process.env.BASE_CHAIN_ID || 8453)]: base,
+  [Number(process.env.SEPOLIA_CHAIN_ID || 11155111)]: sepolia,
+  [Number(process.env.BASE_SEPOLIA_CHAIN_ID || 84532)]: baseSepolia,
 }
 
 const RELAY_CONTRACTS: Record<number, `0x${string}`> = {
-  1: (process.env.RELAY_CONTRACT_ETH || '0x') as `0x${string}`,
-  11155111: (process.env.RELAY_CONTRACT_ETH || '0x') as `0x${string}`,
-  137: (process.env.RELAY_CONTRACT_POLYGON || '0x') as `0x${string}`,
-  42161: (process.env.RELAY_CONTRACT_ARBITRUM || '0x') as `0x${string}`,
-  8453: (process.env.RELAY_CONTRACT_BASE || '0x') as `0x${string}`,
-  84532: (process.env.RELAY_CONTRACT_BASE || '0x') as `0x${string}`,
+  [Number(process.env.ETH_CHAIN_ID || 1)]: (process.env.RELAY_CONTRACT_ETH || '0x') as `0x${string}`,
+  [Number(process.env.SEPOLIA_CHAIN_ID || 11155111)]: (process.env.RELAY_CONTRACT_ETH || '0x') as `0x${string}`,
+  [Number(process.env.POLYGON_CHAIN_ID || 137)]: (process.env.RELAY_CONTRACT_POLYGON || '0x') as `0x${string}`,
+  [Number(process.env.ARBITRUM_CHAIN_ID || 42161)]: (process.env.RELAY_CONTRACT_ARBITRUM || '0x') as `0x${string}`,
+  [Number(process.env.BASE_CHAIN_ID || 8453)]: (process.env.RELAY_CONTRACT_BASE || '0x') as `0x${string}`,
+  [Number(process.env.BASE_SEPOLIA_CHAIN_ID || 84532)]: (process.env.RELAY_CONTRACT_BASE || '0x') as `0x${string}`,
 }
 
 const RELAY_ABI = [
@@ -63,12 +63,12 @@ function getClients(chainId: number) {
   const chain = CHAINS[chainId]
   if (!chain) throw new Error(`Unsupported chain: ${chainId}`)
 
-  const rpcUrl = (chainId === 1 ? process.env.ETH_RPC
-    : chainId === 11155111 ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY || ''}`
-    : chainId === 137 ? process.env.POLYGON_RPC
-    : chainId === 42161 ? process.env.ARBITRUM_RPC
-    : chainId === 8453 ? process.env.BASE_RPC
-    : chainId === 84532 ? 'https://sepolia.base.org'
+  const rpcUrl = (chainId === Number(process.env.ETH_CHAIN_ID || 1) ? process.env.ETH_RPC
+    : chainId === Number(process.env.SEPOLIA_CHAIN_ID || 11155111) ? `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY || ''}`
+    : chainId === Number(process.env.POLYGON_CHAIN_ID || 137) ? process.env.POLYGON_RPC
+    : chainId === Number(process.env.ARBITRUM_CHAIN_ID || 42161) ? process.env.ARBITRUM_RPC
+    : chainId === Number(process.env.BASE_CHAIN_ID || 8453) ? process.env.BASE_RPC
+    : chainId === Number(process.env.BASE_SEPOLIA_CHAIN_ID || 84532) ? process.env.BASE_SEPOLIA_RPC || 'https://sepolia.base.org'
     : undefined) || chain.rpcUrls.default.http[0]
 
   const publicClient = createPublicClient({ chain, transport: http(rpcUrl) })

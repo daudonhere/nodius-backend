@@ -1,27 +1,30 @@
-import { supabaseAdmin, getNetworkMode, type NetworkMode } from './db/index'
+import { supabaseAdmin, getNetworkMode, parseNetworkMode, type NetworkMode } from './db/index'
 import { executeRelayTx, getContractNonce } from './evmSponsor'
 
 const CHAIN_RPCS: Record<number, string> = {
-  1: process.env.ETH_RPC || 'https://eth.llamarpc.com',
-  137: process.env.POLYGON_RPC || 'https://polygon.llamarpc.com',
-  42161: process.env.ARBITRUM_RPC || 'https://arbitrum.llamarpc.com',
-  8453: process.env.BASE_RPC || 'https://base.llamarpc.com',
-  11155111: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY || ''}`,
-  84532: 'https://sepolia.base.org',
+  [Number(process.env.ETH_CHAIN_ID || 1)]: process.env.ETH_RPC || 'https://eth.llamarpc.com',
+  [Number(process.env.POLYGON_CHAIN_ID || 137)]: process.env.POLYGON_RPC || 'https://polygon.llamarpc.com',
+  [Number(process.env.ARBITRUM_CHAIN_ID || 42161)]: process.env.ARBITRUM_RPC || 'https://arbitrum.llamarpc.com',
+  [Number(process.env.BASE_CHAIN_ID || 8453)]: process.env.BASE_RPC || 'https://base.llamarpc.com',
+  [Number(process.env.SEPOLIA_CHAIN_ID || 11155111)]: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY || ''}`,
+  [Number(process.env.BASE_SEPOLIA_CHAIN_ID || 84532)]: process.env.BASE_SEPOLIA_RPC || 'https://sepolia.base.org',
 }
 
 const SOLANA_RPC = process.env.SOLANA_RPC || 'https://api.mainnet-beta.solana.com'
 
-const networkMode = getNetworkMode()
+const defaultNetworkMode = getNetworkMode()
 
 export async function submitRelay(
   userAddress: string,
   chainType: string,
   chainId: number,
-  signedTx: string
+  signedTx: string,
+  mode?: NetworkMode,
 ): Promise<{ id: string; txHash?: string; error?: string }> {
   const rpc = chainType === 'solana' ? SOLANA_RPC : CHAIN_RPCS[chainId]
   if (!rpc) return { id: '', error: `Unsupported chain: ${chainId}` }
+
+  const networkMode = mode ?? defaultNetworkMode
 
   const { data: inserted, error: insertError } = await supabaseAdmin
     .from('relay_queue')
@@ -51,8 +54,10 @@ export async function submitRelay(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+const JSON_RPC_ID = Number(process.env.JSON_RPC_ID || 1)
+...
           jsonrpc: '2.0',
-          id: 1,
+          id: JSON_RPC_ID,
           method: isSolana ? 'sendTransaction' : 'eth_sendRawTransaction',
           params: isSolana ? [rawTx, { encoding: 'base64' }] : [rawTx],
         }),
@@ -95,8 +100,9 @@ export async function getNonce(walletAddress: string, chainId: number): Promise<
   return contractNonce
 }
 
-export async function incrementNonce(walletAddress: string, chainId: number): Promise<number> {
+export async function incrementNonce(walletAddress: string, chainId: number, mode?: NetworkMode): Promise<number> {
   const nextNonce = await getNonce(walletAddress, chainId) + 1
+  const networkMode = mode ?? defaultNetworkMode
 
   const { data: existing } = await supabaseAdmin
     .from('nonce_tracker')
@@ -126,12 +132,13 @@ export async function incrementNonce(walletAddress: string, chainId: number): Pr
   return nextNonce
 }
 
-export async function getGasPool(chainId: number, mode: NetworkMode = networkMode) {
+export async function getGasPool(chainId: number, mode?: NetworkMode) {
+  const networkMode = mode ?? defaultNetworkMode
   const { data: pools } = await supabaseAdmin
     .from('gas_pool')
     .select('*')
     .eq('chain_id', String(chainId))
-    .eq('network_mode', mode)
+    .eq('network_mode', networkMode)
 
   return (pools || []).map((p) => ({
     symbol: p.native_symbol,
@@ -146,7 +153,9 @@ export async function updateGasPoolBalance(
   symbol: string,
   balance: string,
   relayerAddress: string,
+  mode?: NetworkMode,
 ) {
+  const networkMode = mode ?? defaultNetworkMode
   const { data: existing } = await supabaseAdmin
     .from('gas_pool')
     .select('id, threshold')
@@ -173,26 +182,33 @@ export async function updateGasPoolBalance(
         relayer_address: relayerAddress,
         native_symbol: symbol,
         balance,
-        threshold: '0.1',
+    const RELAY_THRESHOLD = process.env.RELAY_THRESHOLD || '0.1'
+...
+    threshold: RELAY_THRESHOLD,
         status,
         last_checked_at: new Date().toISOString(),
       })
   }
 }
 
-export async function submitMetaTx(params: {
-  walletId: string
-  source: string
-  chainId: number
-  target: string
-  value: string
-  data: string
-  nonce: number
-  deadline: number
-  signature: string
-}): Promise<{ id: string; txHash?: string; error?: string }> {
+export async function submitMetaTx(
+  params: {
+    walletId: string
+    source: string
+    chainId: number
+    target: string
+    value: string
+    data: string
+    nonce: number
+    deadline: number
+    signature: string
+  },
+  mode?: NetworkMode,
+): Promise<{ id: string; txHash?: string; error?: string }> {
   const rpc = CHAIN_RPCS[params.chainId]
   if (!rpc) return { id: '', error: `Unsupported chain: ${params.chainId}` }
+
+  const networkMode = mode ?? defaultNetworkMode
 
   const maxRetries = 3
 
@@ -242,7 +258,8 @@ export async function submitMetaTx(params: {
   return { id: '', error: 'Meta-tx relay failed' }
 }
 
-export async function listPendingRelays() {
+export async function listPendingRelays(mode?: NetworkMode) {
+  const networkMode = mode ?? defaultNetworkMode
   const { data } = await supabaseAdmin
     .from('relay_queue')
     .select('*')

@@ -50,7 +50,7 @@ app.use('/relay/submit', authUser)
 const RelaySubmitSchema = z.object({
   walletId: z.string().openapi({ example: 'user_wallet_123' }),
   source: z.string().openapi({ example: 'evm' }),
-  chainId: z.number().openapi({ example: 11155111 }),
+  chainId: z.number().openapi({ example: Number(process.env.SEPOLIA_CHAIN_ID || 11155111) }),
   signedTx: z.string().openapi({ example: '0x...' }),
 })
 
@@ -68,7 +68,8 @@ const RelaySubmitRoute = createRoute({
 
 app.openapi(RelaySubmitRoute, async (c) => {
   const { walletId, source, chainId, signedTx } = c.req.valid('json')
-  const result = await submitRelay(walletId, source, chainId, signedTx)
+  const mode = parseNetworkMode(c.req.header('x-network-mode'))
+  const result = await submitRelay(walletId, source, chainId, signedTx, mode)
   if (result.error) return c.json({ error: result.error }, 500)
   return c.json(result, 201)
 })
@@ -100,7 +101,7 @@ app.use('/relay/meta-submit', authUser)
 const MetaSubmitSchema = z.object({
   walletId: z.string().openapi({ example: 'user_wallet_123' }),
   source: z.string().openapi({ example: 'evm' }),
-  chainId: z.number().openapi({ example: 11155111 }),
+  chainId: z.number().openapi({ example: Number(process.env.SEPOLIA_CHAIN_ID || 11155111) }),
   target: z.string().openapi({ example: '0x...' }),
   value: z.string().openapi({ example: '0' }),
   data: z.string().optional().openapi({ example: '0x' }),
@@ -123,7 +124,8 @@ const MetaSubmitRoute = createRoute({
 
 app.openapi(MetaSubmitRoute, async (c) => {
   const body = c.req.valid('json')
-  const result = await submitMetaTx({ ...body, data: body.data || '0x', nonce: body.nonce || 0, deadline: body.deadline || 0 })
+  const mode = parseNetworkMode(c.req.header('x-network-mode'))
+  const result = await submitMetaTx({ ...body, data: body.data || '0x', nonce: body.nonce || 0, deadline: body.deadline || 0 }, mode)
   if (result.error) return c.json({ error: result.error }, 500)
   return c.json(result, 201)
 })
@@ -272,7 +274,10 @@ const PendingRoute = createRoute({
   responses: { 200: { description: 'Pending relays', content: { 'application/json': { schema: z.any() } } } },
 })
 
-app.openapi(PendingRoute, async (c) => c.json(await listPendingRelays()))
+app.openapi(PendingRoute, async (c) => {
+  const mode = parseNetworkMode(c.req.header('x-network-mode'))
+  return c.json(await listPendingRelays(mode))
+})
 
 
 app.use('/relay/complete/:id', authSecret)
@@ -353,7 +358,7 @@ app.openapi(GasPoolRoute, async (c) => {
 
 app.doc('/doc', {
   openapi: '3.1.0',
-  info: { title: 'Nodius Relayer API', version: '0.1.0' },
+  info: { title: 'Nodius Relayer API', version: process.env.API_VERSION || '0.1.0' },
   servers: [{ url: `http://localhost:${Number(process.env.PORT) || 3001}`, description: 'Local' }],
 })
 

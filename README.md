@@ -40,16 +40,27 @@ Copy `.env.example` to `.env` and configure:
 | `SUPABASE_URL` | Supabase project URL |
 | `SUPABASE_SECRET_KEY` | Supabase service role key |
 | `SUPABASE_PUBLISHABLE_KEY` | Supabase anon/publishable key |
+| `SUPABASE_JWKS_URL` | Supabase JWKS URL for auth verification |
+| `SUPABASE_DATABASE_URL` | Postgres connection string (for Drizzle migrations) |
 | `SUPABASE_MGMT_TOKEN` | Supabase management token |
 | `RELAYER_PRIVATE_KEY` | EVM relayer private key |
 | `RELAY_CONTRACT_ETH` | NodiusRelay address on Ethereum/Sepolia |
 | `RELAY_CONTRACT_BASE` | NodiusRelay address on Base/Base Sepolia |
-| `SOLANA_RELAYER_PRIVATE_KEY` | Solana fee payer keypair (base58) |
-| `TON_RELAYER_MNEMONIC` | TON sponsor wallet mnemonic |
+| `RELAY_CONTRACT_POLYGON` | NodiusRelay address on Polygon |
+| `RELAY_CONTRACT_ARBITRUM` | NodiusRelay address on Arbitrum |
+| `ALCHEMY_API_KEY` | Alchemy API key (for Sepolia RPC) |
+| `ETH_RPC` | Ethereum RPC URL (optional, fallback to llama) |
+| `POLYGON_RPC` | Polygon RPC URL (optional) |
+| `ARBITRUM_RPC` | Arbitrum RPC URL (optional) |
+| `BASE_RPC` | Base RPC URL (optional) |
+| `SOLANA_RELAYER_PRIVATE_KEY` | Solana fee payer keypair (JSON array or base58) |
+| `SOLANA_RPC` | Solana RPC URL |
+| `TON_RELAYER_MNEMONIC` | TON sponsor wallet 24-word mnemonic |
 | `TONCENTER_API_KEY` | TonCenter API key |
 | `TON_GASLESS_WALLET_ADDRESS` | Deployed TonGaslessWallet address |
+| `TONAPI_KEY` | TonAPI key (for gas pool balance check) |
 | `PORT` | Server port (default: 3001) |
-| `APP_NETWORK` | Network mode (default: `testnet`) |
+| `APP_NETWORK` | Network mode (`devnet`, `testnet`, `mainnet`) |
 
 ## Usage
 
