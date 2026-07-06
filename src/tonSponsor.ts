@@ -1,7 +1,7 @@
 import { beginCell, Cell, Address, TonClient } from '@ton/ton'
 import { hasTonRelayer } from './sponsoredRelayers'
 
-const TON_CENTER_API = 'https://testnet.toncenter.com/api/v2/jsonRPC'
+const TON_CENTER_API = process.env.TONCENTER_API_URL || 'https://testnet.toncenter.com/api/v2/jsonRPC'
 
 export function buildSignedExecuteBody(
   targetAddress: string,

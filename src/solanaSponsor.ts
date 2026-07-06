@@ -1,7 +1,7 @@
 import { VersionedTransaction, Transaction, SystemProgram, PublicKey } from '@solana/web3.js'
 import { getSolanaRelayerKeypair, hasSolanaRelayer } from './sponsoredRelayers'
 
-const JUPITER_API = 'https://quote-api.jup.ag/v6'
+const JUPITER_API = process.env.JUPITER_API_URL || 'https://quote-api.jup.ag/v6'
 
 export async function buildSponsoredSolanaSwap(
   quoteResponse: any,

@@ -12,7 +12,7 @@ const CHAIN_RPCS: Record<string, string> = {
   '42161': process.env.ARBITRUM_RPC || 'https://arbitrum.llamarpc.com',
   '8453': process.env.BASE_RPC || 'https://base.llamarpc.com',
   '11155111': `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY || ''}`,
-  '84532': 'https://sepolia.base.org',
+  '84532': process.env.BASE_SEPOLIA_RPC || 'https://sepolia.base.org',
   [String(DEBRIDGE_SOLANA_CHAIN_ID)]: process.env.SOLANA_RPC || 'https://api.mainnet-beta.solana.com',
 }
 
@@ -96,7 +96,8 @@ async function fetchSolBalance(pubkey: string): Promise<string> {
 async function fetchTonBalance(address: string): Promise<string> {
   try {
     const tonApiKey = process.env.TONAPI_KEY || ''
-    const res = await fetch(`https://tonapi.io/v2/accounts/${address}`, {
+    const tonApiUrl = process.env.TONAPI_URL || 'https://tonapi.io'
+    const res = await fetch(`${tonApiUrl}/v2/accounts/${address}`, {
       headers: tonApiKey ? { Authorization: `Bearer ${tonApiKey}` } : {},
     })
     const data = await res.json() as any
@@ -180,11 +181,12 @@ export async function startWorker() {
   const solanaPubkey = hasSolanaRelayer() ? getSolanaRelayerKeypair().publicKey.toBase58() : ''
   const tonWallet = hasTonRelayer() ? (await getTonRelayerWallet()).wallet : null
 
+  const gasThreshold = process.env.GAS_POOL_THRESHOLD || '0.1'
   if (solanaPubkey) {
-    await ensureGasPoolEntry(DEBRIDGE_SOLANA_CHAIN_ID, 'solana', 'SOL', solanaPubkey, '0.1')
+    await ensureGasPoolEntry(DEBRIDGE_SOLANA_CHAIN_ID, 'solana', 'SOL', solanaPubkey, gasThreshold)
   }
   if (tonWallet) {
-    await ensureGasPoolEntry(DEBRIDGE_TON_CHAIN_ID, 'ton', 'TON', tonWallet.address.toString(), '0.1')
+    await ensureGasPoolEntry(DEBRIDGE_TON_CHAIN_ID, 'ton', 'TON', tonWallet.address.toString(), gasThreshold)
   }
 
   setInterval(async () => {
