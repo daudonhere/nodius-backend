@@ -1,4 +1,7 @@
-import 'dotenv/config'
+if (!process.env.VERCEL) {
+  const dotenv = 'dotenv/config'
+  await import(dotenv)
+}
 import { serve } from '@hono/node-server'
 import { cors } from 'hono/cors'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
