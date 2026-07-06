@@ -6,3 +6,4 @@ tsconfig.tsbuildinfo
 data/
 drizzle/meta/
 .vercel-test.mjs
+.vercel-bundle.mjs

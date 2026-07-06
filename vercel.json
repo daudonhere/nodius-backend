@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/**/*.{ts,js,mjs}": {
+      "runtime": "@vercel/node@3"
+    }
+  },
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/api" }
