@@ -5,3 +5,4 @@ tsconfig.tsbuildinfo
 *.tsbuildinfo
 data/
 drizzle/meta/
+.vercel-test.mjs
