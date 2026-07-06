@@ -14,13 +14,13 @@ import {
   listPendingRelays,
   markRelayComplete,
   markRelayFailed,
-} from './relayer'
-import { getRelayContractAddress, getRelayerAddress, getRelayerBalance } from './evmSponsor'
-import { hasSolanaRelayer, getSolanaRelayerKeypair, hasTonRelayer, getTonRelayerWallet, getSponsoredRelayerInfo } from './sponsoredRelayers'
-import { buildSponsoredSolanaSwap, buildSponsoredSolanaTransfer } from './solanaSponsor'
-import { buildSignedExecuteBody, sendTonExternalMessage } from './tonSponsor'
-import { startWorker } from './worker'
-import { parseNetworkMode } from './db/index'
+} from './relayer.js'
+import { getRelayContractAddress, getRelayerAddress, getRelayerBalance } from './evmSponsor.js'
+import { getSponsoredRelayerInfo } from './sponsoredRelayers.js'
+import { buildSponsoredSolanaSwap, buildSponsoredSolanaTransfer } from './solanaSponsor.js'
+import { buildSignedExecuteBody, sendTonExternalMessage } from './tonSponsor.js'
+import { startWorker } from './worker.js'
+import { parseNetworkMode } from './db/index.js'
 
 const app = new OpenAPIHono()
 

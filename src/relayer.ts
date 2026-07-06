@@ -1,5 +1,5 @@
-import { supabaseAdmin, getNetworkMode, parseNetworkMode, type NetworkMode } from './db/index'
-import { executeRelayTx, getContractNonce } from './evmSponsor'
+import { supabaseAdmin, getNetworkMode, parseNetworkMode, type NetworkMode } from './db/index.js'
+import { executeRelayTx, getContractNonce } from './evmSponsor.js'
 
 const CHAIN_RPCS: Record<number, string> = {
   [Number(process.env.ETH_CHAIN_ID || 1)]: process.env.ETH_RPC || 'https://eth.llamarpc.com',

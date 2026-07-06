@@ -1,7 +1,7 @@
-import { supabaseAdmin, getNetworkMode } from './db/index'
-import { getRelayerBalance } from './evmSponsor'
-import { hasSolanaRelayer, getSolanaRelayerKeypair, hasTonRelayer, getTonRelayerWallet } from './sponsoredRelayers'
-import { updateGasPoolBalance } from './relayer'
+import { supabaseAdmin, getNetworkMode } from './db/index.js'
+import { getRelayerBalance } from './evmSponsor.js'
+import { hasSolanaRelayer, getSolanaRelayerKeypair, hasTonRelayer, getTonRelayerWallet } from './sponsoredRelayers.js'
+import { updateGasPoolBalance } from './relayer.js'
 
 const DEBRIDGE_SOLANA_CHAIN_ID = 7565164
 const DEBRIDGE_TON_CHAIN_ID = -239

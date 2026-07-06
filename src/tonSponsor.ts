@@ -1,5 +1,5 @@
 import { beginCell, Cell, Address, TonClient } from '@ton/ton'
-import { hasTonRelayer } from './sponsoredRelayers'
+import { hasTonRelayer } from './sponsoredRelayers.js'
 
 const TON_CENTER_API = process.env.TONCENTER_API_URL || 'https://testnet.toncenter.com/api/v2/jsonRPC'
 

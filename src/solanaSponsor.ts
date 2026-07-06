@@ -1,5 +1,5 @@
 import { VersionedTransaction, Transaction, SystemProgram, PublicKey } from '@solana/web3.js'
-import { getSolanaRelayerKeypair, hasSolanaRelayer } from './sponsoredRelayers'
+import { getSolanaRelayerKeypair, hasSolanaRelayer } from './sponsoredRelayers.js'
 
 const JUPITER_API = process.env.JUPITER_API_URL || 'https://quote-api.jup.ag/v6'
 
