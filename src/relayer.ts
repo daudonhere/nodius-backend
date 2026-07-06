@@ -54,10 +54,8 @@ export async function submitRelay(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-const JSON_RPC_ID = Number(process.env.JSON_RPC_ID || 1)
-...
           jsonrpc: '2.0',
-          id: JSON_RPC_ID,
+          id: Number(process.env.JSON_RPC_ID || 1),
           method: isSolana ? 'sendTransaction' : 'eth_sendRawTransaction',
           params: isSolana ? [rawTx, { encoding: 'base64' }] : [rawTx],
         }),
@@ -182,9 +180,7 @@ export async function updateGasPoolBalance(
         relayer_address: relayerAddress,
         native_symbol: symbol,
         balance,
-    const RELAY_THRESHOLD = process.env.RELAY_THRESHOLD || '0.1'
-...
-    threshold: RELAY_THRESHOLD,
+        threshold: process.env.RELAY_THRESHOLD || '0.1',
         status,
         last_checked_at: new Date().toISOString(),
       })
